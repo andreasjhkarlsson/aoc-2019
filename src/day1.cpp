@@ -25,8 +25,7 @@ namespace day1
 
 	pair<int, int> solve(const vector<string>& input)
 	{
-		vector<int> modules(input.size());
-		std::transform(input.begin(), input.end(), modules.begin(), util::stringToInt);
+		auto modules = util::mapVector<string, int>(input);
 
 		int fuelPart1 = 0;
 		int fuelPart2 = 0;

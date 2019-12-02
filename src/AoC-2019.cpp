@@ -3,8 +3,10 @@
 #include <string>
 #include <vector>
 #include <utility>
+#include <functional>
 #include "util.h"
 #include "day1.h"
+#include "day2.h"
 
 using std::cout;
 using std::cin;
@@ -13,13 +15,6 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::pair;
-
-template<typename T1, typename T2>
-void printResult(pair<T1, T2> result)
-{
-	cout << "Part 1: " << result.first << endl;
-	cout << "Part 2: " << result.second << endl;
-}
 
 int main()
 {
@@ -42,20 +37,23 @@ int main()
 		if (line.size() > 0)
 			input.push_back(line);
 	}
-		
-
+	pair<int, int> result;
 
 	switch (day)
 	{
 	case 1:
-		cout << "Solving day 1..." << endl;
-		printResult(day1::solve(input));
+		result = day1::solve(input);
+		break;
+	case 2:
+		result = day2::solve(input);
 		break;
 	default:
 		cout << "Day not solved." << endl;
 		return 1;
-
 	}
+
+	cout << "Part 1: " << result.first << endl;
+	cout << "Part 2: " << result.second << endl;
 
 }
 
