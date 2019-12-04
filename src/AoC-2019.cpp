@@ -7,6 +7,7 @@
 #include "util.h"
 #include "day1.h"
 #include "day2.h"
+#include "day3.h"
 
 using std::cout;
 using std::cin;
@@ -19,7 +20,7 @@ using std::pair;
 int main()
 {
     
-	cout << "****************************" << endl;
+	cout << "***************************" << endl;
 	cout << "*** Advent of Code 2019 ***" << endl;
 	cout << "***************************" << endl;
 
@@ -46,6 +47,9 @@ int main()
 		break;
 	case 2:
 		result = day2::solve(input);
+		break;
+	case 3:
+		result = day3::solve(input);
 		break;
 	default:
 		cout << "Day not solved." << endl;

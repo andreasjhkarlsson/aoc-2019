@@ -6,10 +6,12 @@
 #include <iostream>
 #include <sstream>
 #include <functional>
+#include <set>
+#include <vector>
+#include <type_traits>
 
 namespace util
 {
-
 	// https://stackoverflow.com/a/17976541/242348
 	inline std::string trim(const std::string &s)
 	{
@@ -47,6 +49,41 @@ namespace util
 		return result;
 	}
 
+	template <typename T>
+	bool contains(const T& s, typename T::value_type const & e)
+	{
+		return std::find(s.begin(), s.end(), e) != s.end();
+	}
 
+	struct Coord
+	{
+		int x;
+		int y;
+		Coord(int x, int y): x(x), y(y)
+		{ }
+	};
+
+	inline bool operator<(const Coord& l, const Coord& r)
+	{
+		return (l.x < r.x || (l.x == r.x && l.y < r.y));
+	}
+
+	inline bool operator==(const Coord& l, const Coord& r)
+	{
+		return l.x == r.x && l.y == r.y;
+	}
 }
 
+namespace std
+{
+	template <>
+	struct hash<util::Coord>
+	{
+		size_t operator()(const util::Coord& k) const
+		{
+			auto h1 = std::hash<int>()(k.x);
+			auto h2 = std::hash<int>()(k.y);
+			return h1 ^ h2;
+		}
+	};
+}
