@@ -8,6 +8,7 @@
 #include "day1.h"
 #include "day2.h"
 #include "day3.h"
+#include "day4.h"
 
 using std::cout;
 using std::cin;
@@ -50,6 +51,9 @@ int main()
 		break;
 	case 3:
 		result = day3::solve(input);
+		break;
+	case 4:
+		result = day4::solve(input);
 		break;
 	default:
 		cout << "Day not solved." << endl;
