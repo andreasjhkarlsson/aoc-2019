@@ -41,7 +41,7 @@ public:
 };
 
 
-Intcode::Intcode(const vector<int>& memory) : memory(memory)
+Intcode::Intcode(const vector<int>& memory) : ip(0), memory(memory)
 { }
 
 void Intcode::writeMemory(int address, int value)
@@ -93,78 +93,80 @@ int Intcode::decodeParameter(int address, Parameter parameter)
 	}
 }
 
+bool Intcode::step()
+{
+	Opcode opcode(memory[ip]);
+
+	switch (opcode.op)
+	{
+	case 1:
+		memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) + decodeParameter(ip, opcode.getParameter(2));
+		ip += 4;
+		break;
+	case 2:
+		memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) * decodeParameter(ip, opcode.getParameter(2));
+		ip += 4;
+		break;
+	case 3:
+	{
+		int value = input.front();
+		input.pop();
+		memory[memory[ip + 1]] = value;
+		ip += 2;
+		break;
+	}
+	case 4:
+	{
+		int value = decodeParameter(ip, opcode.getParameter(1));
+		output.push(value);
+		ip += 2;
+		break;
+	}
+	case 5:
+	{
+		auto condition = decodeParameter(ip, opcode.getParameter(1));
+		if (condition != 0)
+			ip = decodeParameter(ip, opcode.getParameter(2));
+		else
+			ip += 3;
+		break;
+	}
+	case 6:
+	{
+		auto condition = decodeParameter(ip, opcode.getParameter(1));
+		if (condition == 0)
+			ip = decodeParameter(ip, opcode.getParameter(2));
+		else
+			ip += 3;
+		break;
+	}
+	case 7:
+	{
+		if (decodeParameter(ip, opcode.getParameter(1)) < decodeParameter(ip, opcode.getParameter(2)))
+			memory[memory[ip + 3]] = 1;
+		else
+			memory[memory[ip + 3]] = 0;
+		ip += 4;
+		break;
+	}
+	case 8:
+	{
+		if (decodeParameter(ip, opcode.getParameter(1)) == decodeParameter(ip, opcode.getParameter(2)))
+			memory[memory[ip + 3]] = 1;
+		else
+			memory[memory[ip + 3]] = 0;
+		ip += 4;
+		break;
+	}
+	case 99:
+		return false;
+	}
+
+	return true;
+}
+
 void Intcode::run()
 {
-	int ip = 0;
-
-	while (true)
-	{
-		Opcode opcode(memory[ip]);
-
-		switch (opcode.op)
-		{
-		case 1:
-			memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) + decodeParameter(ip, opcode.getParameter(2));
-			ip += 4;
-			break;
-		case 2:
-			memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) * decodeParameter(ip, opcode.getParameter(2));
-			ip += 4;
-			break;
-		case 3:
-		{
-			int value = input.front();
-			input.pop();
-			memory[memory[ip + 1]] = value;
-			ip += 2;
-			break;
-		}
-		case 4:
-		{
-			int value = decodeParameter(ip, opcode.getParameter(1));
-			output.push(value);
-			ip += 2;
-			break;
-		}
-		case 5:
-		{
-			auto condition = decodeParameter(ip, opcode.getParameter(1));
-			if (condition != 0)
-				ip = decodeParameter(ip, opcode.getParameter(2));
-			else
-				ip += 3;
-			break;
-		}
-		case 6:
-		{
-			auto condition = decodeParameter(ip, opcode.getParameter(1));
-			if (condition == 0)
-				ip = decodeParameter(ip, opcode.getParameter(2));
-			else
-				ip += 3;
-			break;
-		}
-		case 7:
-		{
-			if (decodeParameter(ip, opcode.getParameter(1)) < decodeParameter(ip, opcode.getParameter(2)))
-				memory[memory[ip + 3]] = 1;
-			else
-				memory[memory[ip + 3]] = 0;
-			ip += 4;
-			break;
-		}
-		case 8:
-		{
-			if (decodeParameter(ip, opcode.getParameter(1)) == decodeParameter(ip, opcode.getParameter(2)))
-				memory[memory[ip + 3]] = 1;
-			else
-				memory[memory[ip + 3]] = 0;
-			ip += 4;
-			break;
-		}
-		case 99:
-			return;
-		}
-
-	}
+	ip = 0;
+	while (step());
 }

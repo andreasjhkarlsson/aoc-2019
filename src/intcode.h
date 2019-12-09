@@ -11,6 +11,7 @@ struct Parameter;
 class Intcode
 {
 private:
+	int ip;
 	std::vector<int> memory;
 	std::queue<int> input;
 	std::queue<int> output;
@@ -29,4 +30,6 @@ public:
 	std::vector<int> readAllOutput();
 
 	void run();
+
+	bool step();
 };

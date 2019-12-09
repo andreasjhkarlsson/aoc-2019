@@ -72,6 +72,19 @@ namespace util
 	{
 		return l.x == r.x && l.y == r.y;
 	}
+
+	// https://stackoverflow.com/a/27697079/242348
+	inline std::vector<std::vector<int>> permuteUnique(std::vector<int> num) {
+		std::sort(num.begin(), num.end());
+		std::vector<std::vector<int> > res;
+		if (num.empty()) {
+			return res;
+		}
+		do {
+			res.push_back(num);
+		} while (std::next_permutation(num.begin(), num.end()));
+		return res;
+	}
 }
 
 namespace std
