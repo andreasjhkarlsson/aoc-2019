@@ -11,23 +11,21 @@ struct Parameter;
 class Intcode
 {
 private:
-	int ip;
-	std::vector<int> memory;
-	std::queue<int> input;
-	std::queue<int> output;
-	int decodeParameter(int address, Parameter parameter);
+	uint32_t ip;
+	std::vector<int64_t> memory;
+	std::queue<int64_t> input;
+	std::queue<int64_t> output;
+	int decodeParameter(uint32_t address, Parameter parameter);
 public:
-	Intcode(const std::vector<int>& memory);
+	Intcode(const std::vector<int64_t>& memory);
 
-	void writeMemory(int address, int value);
+	void addInput(int64_t);
 
-	int readMemory(int address);
+	std::optional<int64_t> readOutput();
 
-	void addInput(int);
+	std::vector<int64_t> readAllOutput();
 
-	std::optional<int> readOutput();
-
-	std::vector<int> readAllOutput();
+	int64_t& operator[](uint32_t address);
 
 	void run();
 

@@ -9,7 +9,7 @@ using std::string;
 namespace day5
 {
 
-	int runTEST(const vector<int>& program, int input)
+	int runTEST(const vector<int64_t>& program, int input)
 	{
 		Intcode computer(program);
 		computer.addInput(input);
@@ -20,7 +20,7 @@ namespace day5
 
 	pair<int, int> solve(const vector<string>& input)
 	{
-		auto program = util::mapVector<string, int>(util::split(input[0], ','));
+		auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
 
 		auto part1 = runTEST(program, 1);
 		auto part2 = runTEST(program, 5);

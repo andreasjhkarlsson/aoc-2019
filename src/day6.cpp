@@ -44,7 +44,7 @@ namespace day6
 			orbitals[orbit.second] = orbit.first;
 
 		int sum = 0;
-		for (auto orbit : columns)
+		for (auto& orbit : columns)
 		{
 			sum += findDepth(orbitals, orbit.second, "COM");
 		}
@@ -57,7 +57,7 @@ namespace day6
 
 		int distanceApart = 0;
 
-		for (auto step : myPath)
+		for (auto& step : myPath)
 		{
 			if (util::contains(santasPath, step))
 			{

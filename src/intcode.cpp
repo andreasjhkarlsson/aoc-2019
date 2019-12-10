@@ -41,26 +41,23 @@ public:
 };
 
 
-Intcode::Intcode(const vector<int>& memory) : ip(0), memory(memory)
+Intcode::Intcode(const vector<int64_t>& memory) : ip(0), memory(memory)
 { }
 
-void Intcode::writeMemory(int address, int value)
+int64_t& Intcode::operator[](uint32_t address)
 {
-	memory[address] = value;
-}
+	if (address >= memory.size())
+		memory.resize(address + 1);
 
-
-int Intcode::readMemory(int address)
-{
 	return memory[address];
 }
 
-void Intcode::addInput(int value)
+void Intcode::addInput(int64_t value)
 {
 	input.push(value);
 }
 
-optional<int> Intcode::readOutput()
+optional<int64_t> Intcode::readOutput()
 {
 	if (output.size() == 0)
 		return std::nullopt;
@@ -69,9 +66,9 @@ optional<int> Intcode::readOutput()
 	return value;
 }
 
-vector<int> Intcode::readAllOutput()
+vector<int64_t> Intcode::readAllOutput()
 {
-	vector<int> all;
+	vector<int64_t> all;
 
 	while (!output.empty())
 	{
@@ -82,7 +79,7 @@ vector<int> Intcode::readAllOutput()
 	return all;
 }
 
-int Intcode::decodeParameter(int address, Parameter parameter)
+int Intcode::decodeParameter(uint32_t address, Parameter parameter)
 {
 	switch (parameter.mode)
 	{

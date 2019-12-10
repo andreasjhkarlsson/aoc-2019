@@ -65,12 +65,13 @@ namespace day7
 
 			return finalOutput;
 			next:;
+
 		}
 	}
 
 	pair<int, int> solve(const vector<string>& input)
 	{
-		auto program = util::mapVector<string, int>(util::split(input[0], ','));
+		auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
 
 		vector<Intcode> amplifiers(5, Intcode(program));
 
