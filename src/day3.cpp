@@ -77,7 +77,7 @@ namespace day3
 		return abs(c1.x - c2.x) + abs(c1.y - c2.y);
 	}
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto wires = util::mapVector<string, vector<Instruction>>(input, parseWire);
 
@@ -102,7 +102,7 @@ namespace day3
 		std::sort(distances.begin(), distances.end());
 		auto part2 = distances[0];
 
-		return pair<int, int>(part1, part2);
+		return pair<int64_t, int64_t>(part1, part2);
 	}
 
 }

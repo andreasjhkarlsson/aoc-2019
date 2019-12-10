@@ -20,7 +20,7 @@ namespace day8
 
 	typedef char Layer[height][width];
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto pixels = input[0];
 		Layer* layers = (Layer*)pixels.c_str();

@@ -18,7 +18,7 @@ namespace day5
 		return output[output.size() - 1];
 	}
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
 

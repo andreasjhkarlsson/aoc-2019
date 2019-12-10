@@ -11,11 +11,15 @@ struct Parameter;
 class Intcode
 {
 private:
-	uint32_t ip;
+	struct Registers
+	{
+		uint32_t ip;
+		int32_t rb;
+	} registers;
 	std::vector<int64_t> memory;
 	std::queue<int64_t> input;
 	std::queue<int64_t> output;
-	int decodeParameter(uint32_t address, Parameter parameter);
+	int64_t& decodeParameter(uint32_t address, Parameter parameter);
 public:
 	Intcode(const std::vector<int64_t>& memory);
 

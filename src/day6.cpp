@@ -32,7 +32,7 @@ namespace day6
 			getPath(orbits, next, target, path);
 	}
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto columns = util::mapVector<string, pair<string, string>>(input, [](const auto& str) {
 			auto splitted = util::split(str, ')');

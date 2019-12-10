@@ -7,7 +7,8 @@ using std::optional;
 enum Mode
 {
 	Position = 0,
-	Immediate = 1
+	Immediate = 1,
+	Relative = 2
 };
 
 struct Parameter
@@ -23,8 +24,8 @@ class Opcode
 private:
 	vector<Mode> parameterModes;
 public:
-	const int op;
-	Opcode(int code) : op(code % 100)
+	const int64_t op;
+	Opcode(int64_t code) : op(code % 100)
 	{
 		code /= 100;
 		while (code > 0)
@@ -41,11 +42,17 @@ public:
 };
 
 
-Intcode::Intcode(const vector<int64_t>& memory) : ip(0), memory(memory)
-{ }
+Intcode::Intcode(const vector<int64_t>& memory) : memory(memory)
+{
+	registers.ip = 0;
+	registers.rb = 0;
+}
 
 int64_t& Intcode::operator[](uint32_t address)
 {
+	if (address > 10000000)
+		throw std::exception("out of memory");
+
 	if (address >= memory.size())
 		memory.resize(address + 1);
 
@@ -79,80 +86,88 @@ vector<int64_t> Intcode::readAllOutput()
 	return all;
 }
 
-int Intcode::decodeParameter(uint32_t address, Parameter parameter)
+int64_t& Intcode::decodeParameter(uint32_t address, Parameter parameter)
 {
 	switch (parameter.mode)
 	{
 	case Immediate:
-		return memory[address + parameter.offset];
+		return (*this)[address + parameter.offset];
 	case Position:
-		return memory[memory[address + parameter.offset]];
+		return (*this)[(*this)[address + parameter.offset]];
+	case Relative:
+		return (*this)[registers.rb + (*this)[address + parameter.offset]];
 	}
 }
 
 bool Intcode::step()
 {
-	Opcode opcode(memory[ip]);
+	Opcode opcode(memory[registers.ip]);
 
 	switch (opcode.op)
 	{
 	case 1:
-		memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) + decodeParameter(ip, opcode.getParameter(2));
-		ip += 4;
+		decodeParameter(registers.ip, opcode.getParameter(3)) = decodeParameter(registers.ip, opcode.getParameter(1)) + decodeParameter(registers.ip, opcode.getParameter(2));
+		registers.ip += 4;
 		break;
 	case 2:
-		memory[memory[ip + 3]] = decodeParameter(ip, opcode.getParameter(1)) * decodeParameter(ip, opcode.getParameter(2));
-		ip += 4;
+		decodeParameter(registers.ip, opcode.getParameter(3)) = decodeParameter(registers.ip, opcode.getParameter(1)) * decodeParameter(registers.ip, opcode.getParameter(2));
+		registers.ip += 4;
 		break;
 	case 3:
 	{
-		int value = input.front();
+		int64_t value = input.front();
 		input.pop();
-		memory[memory[ip + 1]] = value;
-		ip += 2;
+		decodeParameter(registers.ip,opcode.getParameter(1)) = value;
+		registers.ip += 2;
 		break;
 	}
 	case 4:
 	{
-		int value = decodeParameter(ip, opcode.getParameter(1));
+		int64_t value = decodeParameter(registers.ip, opcode.getParameter(1));
 		output.push(value);
-		ip += 2;
+		registers.ip += 2;
 		break;
 	}
 	case 5:
 	{
-		auto condition = decodeParameter(ip, opcode.getParameter(1));
+		auto condition = decodeParameter(registers.ip, opcode.getParameter(1));
 		if (condition != 0)
-			ip = decodeParameter(ip, opcode.getParameter(2));
+			registers.ip = decodeParameter(registers.ip, opcode.getParameter(2));
 		else
-			ip += 3;
+			registers.ip += 3;
 		break;
 	}
 	case 6:
 	{
-		auto condition = decodeParameter(ip, opcode.getParameter(1));
+		auto condition = decodeParameter(registers.ip, opcode.getParameter(1));
 		if (condition == 0)
-			ip = decodeParameter(ip, opcode.getParameter(2));
+			registers.ip = decodeParameter(registers.ip, opcode.getParameter(2));
 		else
-			ip += 3;
+			registers.ip += 3;
 		break;
 	}
 	case 7:
 	{
-		if (decodeParameter(ip, opcode.getParameter(1)) < decodeParameter(ip, opcode.getParameter(2)))
-			memory[memory[ip + 3]] = 1;
+		if (decodeParameter(registers.ip, opcode.getParameter(1)) < decodeParameter(registers.ip, opcode.getParameter(2)))
+			decodeParameter(registers.ip, opcode.getParameter(3)) = 1;
 		else
-			memory[memory[ip + 3]] = 0;
-		ip += 4;
+			decodeParameter(registers.ip, opcode.getParameter(3)) = 0;
+		registers.ip += 4;
 		break;
 	}
 	case 8:
 	{
-		if (decodeParameter(ip, opcode.getParameter(1)) == decodeParameter(ip, opcode.getParameter(2)))
-			memory[memory[ip + 3]] = 1;
+		if (decodeParameter(registers.ip, opcode.getParameter(1)) == decodeParameter(registers.ip, opcode.getParameter(2)))
+			decodeParameter(registers.ip, opcode.getParameter(3)) = 1;
 		else
-			memory[memory[ip + 3]] = 0;
-		ip += 4;
+			decodeParameter(registers.ip, opcode.getParameter(3)) = 0;
+		registers.ip += 4;
+		break;
+	}
+	case 9:
+	{
+		registers.rb += decodeParameter(registers.ip, opcode.getParameter(1));
+		registers.ip += 2;
 		break;
 	}
 	case 99:
@@ -164,6 +179,6 @@ bool Intcode::step()
 
 void Intcode::run()
 {
-	ip = 0;
+	registers.ip = 0;
 	while (step());
 }

@@ -13,6 +13,7 @@
 #include "day6.h"
 #include "day7.h"
 #include "day8.h"
+#include "day9.h"
 
 using std::cout;
 using std::cin;
@@ -43,7 +44,7 @@ int main()
 		if (line.size() > 0)
 			input.push_back(line);
 	}
-	pair<int, int> result;
+	pair<int64_t, int64_t> result;
 
 	switch (day)
 	{
@@ -70,6 +71,9 @@ int main()
 		break;
 	case 8:
 		result = day8::solve(input);
+		break;
+	case 9:
+		result = day9::solve(input);
 		break;
 	default:
 		cout << "Day not solved." << endl;

@@ -9,7 +9,7 @@ using std::string;
 namespace day2
 {
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		vector<int64_t> memory = util::mapVector<string,int64_t>(util::split(input[0], ','));
 
@@ -38,7 +38,7 @@ namespace day2
 			}
 		} done:
 
-		return pair<int, int>(part1, part2);
+		return pair<int64_t, int64_t>(part1, part2);
 	}
 
 

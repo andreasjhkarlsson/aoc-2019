@@ -6,5 +6,5 @@
 
 namespace day1
 {
-	std::pair<int, int> solve(const std::vector<std::string>& input);
+	std::pair<int64_t, int64_t> solve(const std::vector<std::string>& input);
 }

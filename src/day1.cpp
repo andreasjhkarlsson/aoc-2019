@@ -23,7 +23,7 @@ namespace day1
 		return fuel + fuelForModule(fuel); // Treat fuel as new module
 	}
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto modules = util::mapVector<string, int>(input);
 

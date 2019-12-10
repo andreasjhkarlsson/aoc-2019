@@ -38,7 +38,7 @@ namespace day4
 		return matches(number % 10, number / 10, 1, 0, mode);
 	}
 
-	pair<int, int> solve(const vector<string>& input)
+	pair<int64_t, int64_t> solve(const vector<string>& input)
 	{
 		auto range = util::mapVector<string,int>(util::split(input[0], '-'));
 		auto from = range[0];
