@@ -13,10 +13,10 @@ namespace day7
 {
 	int runAmplifiers(Intcode* amplifiers, int count, int input)
 	{
-		amplifiers[0].addInput(input);
+		amplifiers[0].getInput().write(input);
 		amplifiers[0].run();
 
-		auto output = amplifiers[0].readOutput().value();
+		auto output = amplifiers[0].getOutput().read();
 		
 		if (count > 1)
 			return runAmplifiers(amplifiers + 1, count - 1, output);
@@ -36,7 +36,7 @@ namespace day7
 	{
 		if (count > 0)
 		{
-			amplifiers[0].addInput(phases[0]);
+			amplifiers[0].getInput().write(phases[0]);
 			setPhases(amplifiers + 1, phases + 1, count - 1);
 		}
 	}
@@ -44,29 +44,29 @@ namespace day7
 
 	int runAmplifierLoop(Intcode* amplifiers, int count, int input)
 	{
+		for (int i = 0; i < count; i++)
+			amplifiers[i].run(false);
+		
 		int finalOutput = 0;
 		auto& lastAmplifier = amplifiers[count - 1];
 
 		for (int i = 0;; i++) 
 		{
 			auto& amplifier = amplifiers[i%count];
-			amplifier.addInput(input);
-			while (amplifier.step())
-			{
-				auto output = amplifier.readOutput();
-				if (output.has_value())
-				{
-					input = output.value();
-					if (&amplifier == &lastAmplifier) // always save result of last amplifier
-						finalOutput = input;
-					goto next; // love it
-				}
-			}
+			amplifier.getInput().write(input);
 
-			return finalOutput;
-			next:;
+			bool eof = false;
+			auto output = amplifier.getOutput().read(eof);
+			
+			if (eof)
+				return finalOutput;
 
+			if (&amplifier == &lastAmplifier) // always save result of last amplifier
+				finalOutput = output;
+
+			input = output;
 		}
+		
 	}
 
 	pair<int64_t, int64_t> solve(const vector<string>& input)
@@ -95,10 +95,8 @@ namespace day7
 		maxOutput = 0;
 		phaseSettings = util::permuteUnique({ 5,6,7,8,9 });
 
-		int c = 0;
 		for (auto& phases : phaseSettings)
 		{
-			std::cout << c++ << std::endl;
 			vector<Intcode> amplifiers(5, Intcode(program));
 
 			setPhases(&amplifiers[0], &phases[0], 5);

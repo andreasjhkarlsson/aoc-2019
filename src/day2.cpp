@@ -14,10 +14,10 @@ namespace day2
 		vector<int64_t> memory = util::mapVector<string,int64_t>(util::split(input[0], ','));
 
 		Intcode computer(memory);
-		computer[1] = 12;
-		computer[2] = 2;
+		computer.getMemory()[1] = 12;
+		computer.getMemory()[2] = 2;
 		computer.run();
-		int part1 = computer[0];
+		int64_t part1 = computer.getMemory()[0];
 
 		int part2 = 0;
 		for (int noun = 0; noun < 100; noun++)
@@ -25,11 +25,11 @@ namespace day2
 			for (int verb = 0; verb < 100; verb++)
 			{
 				Intcode computer(memory);
-				computer[1] = noun;
-				computer[2] = verb;
+				computer.getMemory()[1] = noun;
+				computer.getMemory()[2] = verb;
 				computer.run();
 
-				if (computer[0] == 19690720)
+				if (computer.getMemory()[0] == 19690720)
 				{
 					part2 = 100 * noun + verb;
 					goto done;

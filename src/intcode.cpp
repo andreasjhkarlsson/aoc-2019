@@ -3,182 +3,185 @@
 using std::queue;
 using std::vector;
 using std::optional;
+using std::thread;
 
-enum Mode
-{
-	Position = 0,
-	Immediate = 1,
-	Relative = 2
-};
 
-struct Parameter
+Intcode::Intcode(const vector<int64_t>& program):
+	memory(program),
+	ip(0),
+	rb(0),
+	halted(false)
 {
-	int offset;
-	Mode mode;
-	Parameter(int offset, Mode mode): offset(offset), mode(mode)
-	{ }
-};
+}
 
-class Opcode
+Intcode::Intcode(const Intcode& other):
+	memory(other.memory),
+	ip(other.ip),
+	rb(other.rb),
+	halted(other.halted)
 {
-private:
-	vector<Mode> parameterModes;
-public:
-	const int64_t op;
-	Opcode(int64_t code) : op(code % 100)
+	if (other.runner)
+		throw std::exception("Cannot copy a running Intcode computer");
+}
+
+Intcode::~Intcode()
+{
+	wait();
+}
+
+void Intcode::loadParameters(uint32_t address, int count, int64_t** params)
+{
+	size_t memorySize = memory.size();
+
+	int64_t modes = memory[address] / 100;
+
+	for (int i = 0; i < count; i++)
 	{
-		code /= 100;
-		while (code > 0)
+		switch (modes % 10)
 		{
-			parameterModes.push_back((Mode)(code % 10));
-			code /= 10;
+		case 0:
+			params[i] = &memory[memory[address + i + 1]];
+			break;
+		case 1:
+			params[i] = &memory[address + i + 1];
+			break;
+		case 2:
+			params[i] = &memory[rb + memory[address + i + 1]];
+			break;
+		
 		}
+		modes /= 10;
 	}
 
-	Parameter getParameter(int parameter)
-	{
-		return Parameter(parameter, parameter <= parameterModes.size() ? parameterModes[parameter-1] : Mode::Position);
-	}
-};
-
-
-Intcode::Intcode(const vector<int64_t>& memory) : memory(memory)
-{
-	registers.ip = 0;
-	registers.rb = 0;
+	// If memory was reallocated during parameter lookup, we
+	// need to recalculate parameters since pointers are now invalid
+	if (memory.size() != memorySize)
+		loadParameters(address, count, params);
 }
 
-int64_t& Intcode::operator[](uint32_t address)
+void Intcode::run(bool wait)
 {
-	if (address > 10000000)
-		throw std::exception("out of memory");
+	runner = std::make_unique<thread>([this]() {
 
-	if (address >= memory.size())
-		memory.resize(address + 1);
+		step:
 
-	return memory[address];
+		int64_t* params[4];
+
+		auto loadParameters = [this, &params](int count) {
+			this->loadParameters(ip, count, params);
+		};
+
+		switch (memory[ip]%100)
+		{
+		case 1:
+		{
+			loadParameters(3);
+			*params[2] = *params[0] + *params[1];
+			ip += 4;
+			break;
+		}
+
+		case 2:
+		{
+			loadParameters(3);
+			*params[2] = *params[0] * *params[1];
+			ip += 4;
+			break;
+		}
+		case 3:
+		{
+			loadParameters(1);
+			int64_t value = input.read();
+			*params[0] = value;
+			ip += 2;
+			break;
+		}
+		case 4:
+		{
+			loadParameters(1);
+			output.write(*params[0]);
+			ip += 2;
+			break;
+		}
+		case 5:
+		{
+			loadParameters(2);
+			if (*params[0] != 0)
+				ip = *params[1];
+			else
+				ip += 3;
+			break;
+		}
+		case 6:
+		{
+			loadParameters(2);
+			if (*params[0] == 0)
+				ip = *params[1];
+			else
+				ip += 3;
+			break;
+		}
+		case 7:
+		{
+			loadParameters(3);
+			if (*params[0] < *params[1])
+				*params[2] = 1;
+			else
+				*params[2] = 0;
+			ip += 4;
+			break;
+		}
+		case 8:
+		{
+			loadParameters(3);
+			if (*params[0] == *params[1])
+				*params[2] = 1;
+			else
+				*params[2] = 0;
+			ip += 4;
+			break;
+		}
+		case 9:
+		{
+			loadParameters(1);
+			rb += *params[0];
+			ip += 2;
+			break;
+		}
+		case 99:
+			output.setEOF();
+			return;
+		}
+
+		goto step;
+	});
+
+	if (wait)
+		this->wait();
+}
+void Intcode::wait()
+{
+	if (runner)
+		runner->join();
+
+	runner.reset();
 }
 
-void Intcode::addInput(int64_t value)
+bool Intcode::isHalted()
 {
-	input.push(value);
+	return halted;
 }
 
-optional<int64_t> Intcode::readOutput()
+BlockingQueue<int64_t>& Intcode::getInput()
 {
-	if (output.size() == 0)
-		return std::nullopt;
-	auto value = output.front();
-	output.pop();
-	return value;
+	return input;
+}
+BlockingQueue<int64_t>& Intcode::getOutput()
+{
+	return output;
 }
 
-vector<int64_t> Intcode::readAllOutput()
+Memory<int64_t>& Intcode::getMemory()
 {
-	vector<int64_t> all;
-
-	while (!output.empty())
-	{
-		all.push_back(output.front());
-		output.pop();
-	}
-
-	return all;
-}
-
-int64_t& Intcode::decodeParameter(uint32_t address, Parameter parameter)
-{
-	switch (parameter.mode)
-	{
-	case Immediate:
-		return (*this)[address + parameter.offset];
-	case Position:
-		return (*this)[(*this)[address + parameter.offset]];
-	case Relative:
-		return (*this)[registers.rb + (*this)[address + parameter.offset]];
-	}
-}
-
-bool Intcode::step()
-{
-	Opcode opcode(memory[registers.ip]);
-
-	switch (opcode.op)
-	{
-	case 1:
-		decodeParameter(registers.ip, opcode.getParameter(3)) = decodeParameter(registers.ip, opcode.getParameter(1)) + decodeParameter(registers.ip, opcode.getParameter(2));
-		registers.ip += 4;
-		break;
-	case 2:
-		decodeParameter(registers.ip, opcode.getParameter(3)) = decodeParameter(registers.ip, opcode.getParameter(1)) * decodeParameter(registers.ip, opcode.getParameter(2));
-		registers.ip += 4;
-		break;
-	case 3:
-	{
-		int64_t value = input.front();
-		input.pop();
-		decodeParameter(registers.ip,opcode.getParameter(1)) = value;
-		registers.ip += 2;
-		break;
-	}
-	case 4:
-	{
-		int64_t value = decodeParameter(registers.ip, opcode.getParameter(1));
-		output.push(value);
-		registers.ip += 2;
-		break;
-	}
-	case 5:
-	{
-		auto condition = decodeParameter(registers.ip, opcode.getParameter(1));
-		if (condition != 0)
-			registers.ip = decodeParameter(registers.ip, opcode.getParameter(2));
-		else
-			registers.ip += 3;
-		break;
-	}
-	case 6:
-	{
-		auto condition = decodeParameter(registers.ip, opcode.getParameter(1));
-		if (condition == 0)
-			registers.ip = decodeParameter(registers.ip, opcode.getParameter(2));
-		else
-			registers.ip += 3;
-		break;
-	}
-	case 7:
-	{
-		if (decodeParameter(registers.ip, opcode.getParameter(1)) < decodeParameter(registers.ip, opcode.getParameter(2)))
-			decodeParameter(registers.ip, opcode.getParameter(3)) = 1;
-		else
-			decodeParameter(registers.ip, opcode.getParameter(3)) = 0;
-		registers.ip += 4;
-		break;
-	}
-	case 8:
-	{
-		if (decodeParameter(registers.ip, opcode.getParameter(1)) == decodeParameter(registers.ip, opcode.getParameter(2)))
-			decodeParameter(registers.ip, opcode.getParameter(3)) = 1;
-		else
-			decodeParameter(registers.ip, opcode.getParameter(3)) = 0;
-		registers.ip += 4;
-		break;
-	}
-	case 9:
-	{
-		registers.rb += decodeParameter(registers.ip, opcode.getParameter(1));
-		registers.ip += 2;
-		break;
-	}
-	case 99:
-		return false;
-	}
-
-	return true;
-}
-
-void Intcode::run()
-{
-	registers.ip = 0;
-	while (step());
+	return memory;
 }
