@@ -18,12 +18,12 @@ namespace day9
 		Intcode computer(program);
 		computer.getInput().write(1);
 		computer.run();
-		auto part1 = computer.getOutput().read();
+		auto part1 = computer.getOutput().read().value();
 
 		auto computer2 = Intcode(program);
 		computer2.getInput().write(2);
 		computer2.run();
-		auto part2 = computer2.getOutput().read();
+		auto part2 = computer2.getOutput().read().value();
 
 		return pair(part1, part2);
 

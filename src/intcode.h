@@ -5,15 +5,17 @@
 #include <queue>
 #include <optional>
 #include <thread>
+#include <optional>
 #include "util.h"
 
 template <typename T>
-class BlockingQueue
+class IO
 {
 private:
 	std::queue<T> data;
 	util::Semaphore semaphore;
 	std::mutex mutex;
+	bool ended = false;
 public:
 	void write(const T& value)
 	{
@@ -26,31 +28,40 @@ public:
 
 	void setEOF()
 	{
+		ended = true;
 		semaphore.notify();
 	}
 
-	T read()
+	std::optional<T> read()
 	{
-		bool _; return read(_);
-	}
-
-	T read(bool& eof)
-	{
-		eof = false;
 		semaphore.wait();
 
 		{
 			std::lock_guard<std::mutex> guard(mutex);
 
-			if (data.size() == 0)
-			{
-				eof = true;
-				return T();
-			}
+			if (ended)
+				return std::nullopt;
 
-			auto value = data.front();
-			data.pop();
-			return value;
+			if (onRead)
+			{
+				auto data = onRead();
+				if (data.has_value())
+				{
+
+					return data.value();
+				}
+				else
+				{
+					ended = true;
+					return std::nullopt;
+				}
+			}
+			else
+			{
+				auto value = data.front();
+				data.pop();
+				return value;
+			}
 		}
 	}
 
@@ -58,6 +69,8 @@ public:
 	{
 		return data.size() == 0;
 	}
+
+	std::function<std::optional<T>()> onRead;
 };
 
 
@@ -95,8 +108,8 @@ private:
 	uint32_t ip;
 	int32_t rb;
 	bool halted;
-	BlockingQueue<int64_t> input;
-	BlockingQueue<int64_t> output;
+	IO<int64_t> input;
+	IO<int64_t> output;
 	std::unique_ptr<std::thread> runner;
 
 	void loadParameters(uint32_t address, int count, int64_t** params);
@@ -110,7 +123,7 @@ public:
 	void wait();
 	bool isHalted();
 
-	BlockingQueue<int64_t>& getInput();
-	BlockingQueue<int64_t>& getOutput();
+	IO<int64_t>& getInput();
+	IO<int64_t>& getOutput();
 	Memory<int64_t>& getMemory();
 };

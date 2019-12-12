@@ -59,6 +59,8 @@ void Intcode::loadParameters(uint32_t address, int count, int64_t** params)
 		loadParameters(address, count, params);
 }
 
+#pragma warning(push)
+#pragma warning(disable: 4102)
 void Intcode::run(bool wait)
 {
 	runner = std::make_unique<thread>([this]() {
@@ -73,7 +75,7 @@ void Intcode::run(bool wait)
 
 		switch (memory[ip]%100)
 		{
-		case 1:
+		case 1: add:
 		{
 			loadParameters(3);
 			*params[2] = *params[0] + *params[1];
@@ -81,29 +83,31 @@ void Intcode::run(bool wait)
 			break;
 		}
 
-		case 2:
+		case 2: mul:
 		{
 			loadParameters(3);
 			*params[2] = *params[0] * *params[1];
 			ip += 4;
 			break;
 		}
-		case 3:
+		case 3: read:
 		{
 			loadParameters(1);
-			int64_t value = input.read();
-			*params[0] = value;
+			auto read = input.read();
+			if (!read)
+				goto panic; // We can't handle EOF on input
+			*params[0] = read.value();
 			ip += 2;
 			break;
 		}
-		case 4:
+		case 4: write:
 		{
 			loadParameters(1);
 			output.write(*params[0]);
 			ip += 2;
 			break;
 		}
-		case 5:
+		case 5: jump_nez:
 		{
 			loadParameters(2);
 			if (*params[0] != 0)
@@ -112,7 +116,7 @@ void Intcode::run(bool wait)
 				ip += 3;
 			break;
 		}
-		case 6:
+		case 6: jump_ez:
 		{
 			loadParameters(2);
 			if (*params[0] == 0)
@@ -121,7 +125,7 @@ void Intcode::run(bool wait)
 				ip += 3;
 			break;
 		}
-		case 7:
+		case 7: lesser:
 		{
 			loadParameters(3);
 			if (*params[0] < *params[1])
@@ -131,7 +135,7 @@ void Intcode::run(bool wait)
 			ip += 4;
 			break;
 		}
-		case 8:
+		case 8: equals:
 		{
 			loadParameters(3);
 			if (*params[0] == *params[1])
@@ -141,16 +145,19 @@ void Intcode::run(bool wait)
 			ip += 4;
 			break;
 		}
-		case 9:
+		case 9: set_rb:
 		{
 			loadParameters(1);
 			rb += (int32_t)*params[0];
 			ip += 2;
 			break;
 		}
-		case 99:
+		case 99: halt:
 			output.setEOF();
 			return;
+		default: panic:
+			std::cerr << "Panic! Intcode computer encountered an unrecoverable state." << std::endl;
+			goto halt;
 		}
 
 		goto step;
@@ -159,6 +166,8 @@ void Intcode::run(bool wait)
 	if (wait)
 		this->wait();
 }
+#pragma warning(pop)
+
 void Intcode::wait()
 {
 	if (runner)
@@ -172,11 +181,11 @@ bool Intcode::isHalted()
 	return halted;
 }
 
-BlockingQueue<int64_t>& Intcode::getInput()
+IO<int64_t>& Intcode::getInput()
 {
 	return input;
 }
-BlockingQueue<int64_t>& Intcode::getOutput()
+IO<int64_t>& Intcode::getOutput()
 {
 	return output;
 }

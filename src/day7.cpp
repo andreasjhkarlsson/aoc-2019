@@ -16,7 +16,7 @@ namespace day7
 		amplifiers[0].getInput().write(input);
 		amplifiers[0].run();
 
-		auto output = amplifiers[0].getOutput().read();
+		auto output = amplifiers[0].getOutput().read().value();
 		
 		if (count > 1)
 			return runAmplifiers(amplifiers + 1, count - 1, output);
@@ -55,16 +55,15 @@ namespace day7
 			auto& amplifier = amplifiers[i%count];
 			amplifier.getInput().write(input);
 
-			bool eof = false;
-			auto output = amplifier.getOutput().read(eof);
+			auto output = amplifier.getOutput().read();
 			
-			if (eof)
+			if (!output)
 				return finalOutput;
 
 			if (&amplifier == &lastAmplifier) // always save result of last amplifier
-				finalOutput = output;
+				finalOutput = output.value();
 
-			input = output;
+			input = output.value();
 		}
 		
 	}

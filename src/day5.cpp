@@ -17,7 +17,7 @@ namespace day5
 
 		int64_t code = 0;
 		while (!computer.getOutput().empty())
-			code = computer.getOutput().read();
+			code = computer.getOutput().read().value();
 
 		return code;
 	}
