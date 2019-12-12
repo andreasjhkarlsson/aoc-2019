@@ -56,7 +56,7 @@ namespace day10
 			} 
 		} 
 
-		int part1 = 0;
+		int64_t part1 = 0;
 		util::Coord station { 0, 0 };
 
 		for (const util::Coord& asteroid: asteroids)
@@ -71,7 +71,7 @@ namespace day10
 
 			}
 
-			int canSee = uniqueAngles.size();
+			int64_t canSee = uniqueAngles.size();
 
 			if (canSee > part1)
 			{

@@ -11,7 +11,7 @@ using std::string;
 
 namespace day7
 {
-	int runAmplifiers(Intcode* amplifiers, int count, int input)
+	int64_t runAmplifiers(Intcode* amplifiers, int count, int64_t input)
 	{
 		amplifiers[0].getInput().write(input);
 		amplifiers[0].run();
@@ -42,12 +42,12 @@ namespace day7
 	}
 
 
-	int runAmplifierLoop(Intcode* amplifiers, int count, int input)
+	int64_t runAmplifierLoop(Intcode* amplifiers, int count, int64_t input)
 	{
 		for (int i = 0; i < count; i++)
 			amplifiers[i].run(false);
 		
-		int finalOutput = 0;
+		int64_t finalOutput = 0;
 		auto& lastAmplifier = amplifiers[count - 1];
 
 		for (int i = 0;; i++) 
@@ -75,7 +75,7 @@ namespace day7
 
 		vector<Intcode> amplifiers(5, Intcode(program));
 
-		int maxOutput = 0;
+		int64_t maxOutput = 0;
 		auto phaseSettings = util::permuteUnique({ 0, 1, 2, 3, 4 });
 
 		for (auto& phases: phaseSettings)
@@ -84,13 +84,13 @@ namespace day7
 
 			setPhases(&amplifiers[0], &phases[0], 5);
 
-			int output = runAmplifiers(&amplifiers[0], 5, 0);
+			auto output = runAmplifiers(&amplifiers[0], 5, 0);
 
 			if (output > maxOutput)
 				maxOutput = output;
 		}
 
-		int part1 = maxOutput;
+		int64_t part1 = maxOutput;
 
 		maxOutput = 0;
 		phaseSettings = util::permuteUnique({ 5,6,7,8,9 });
@@ -101,13 +101,13 @@ namespace day7
 
 			setPhases(&amplifiers[0], &phases[0], 5);
 
-			int output = runAmplifierLoop(&amplifiers[0], 5, 0);
+			int64_t output = runAmplifierLoop(&amplifiers[0], 5, 0);
 
 			if (output > maxOutput)
 				maxOutput = output;
 		}
 
-		int part2 = maxOutput;
+		int64_t part2 = maxOutput;
 
 		return pair(part1, part2);
 

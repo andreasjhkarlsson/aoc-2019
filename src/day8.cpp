@@ -24,7 +24,7 @@ namespace day8
 	{
 		auto pixels = input[0];
 		Layer* layers = (Layer*)pixels.c_str();
-		int layerCount = pixels.size() / layerSize;
+		auto layerCount = pixels.size() / layerSize;
 
 		int part1 = 0;
 		int lowestZeroes = 0x7FFFFFFF;

@@ -40,13 +40,13 @@ void Intcode::loadParameters(uint32_t address, int count, int64_t** params)
 		switch (modes % 10)
 		{
 		case 0:
-			params[i] = &memory[memory[address + i + 1]];
+			params[i] = &memory[(uint32_t)memory[address + i + 1]];
 			break;
 		case 1:
 			params[i] = &memory[address + i + 1];
 			break;
 		case 2:
-			params[i] = &memory[rb + memory[address + i + 1]];
+			params[i] = &memory[rb + (uint32_t)memory[address + i + 1]];
 			break;
 		
 		}
@@ -107,7 +107,7 @@ void Intcode::run(bool wait)
 		{
 			loadParameters(2);
 			if (*params[0] != 0)
-				ip = *params[1];
+				ip = (uint32_t)*params[1];
 			else
 				ip += 3;
 			break;
@@ -116,7 +116,7 @@ void Intcode::run(bool wait)
 		{
 			loadParameters(2);
 			if (*params[0] == 0)
-				ip = *params[1];
+				ip = (uint32_t)*params[1];
 			else
 				ip += 3;
 			break;
@@ -144,7 +144,7 @@ void Intcode::run(bool wait)
 		case 9:
 		{
 			loadParameters(1);
-			rb += *params[0];
+			rb += (int32_t)*params[0];
 			ip += 2;
 			break;
 		}
