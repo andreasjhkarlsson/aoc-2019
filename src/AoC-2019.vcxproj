@@ -160,6 +160,7 @@
     <ClCompile Include="AoC-2019.cpp" />
     <ClCompile Include="day1.cpp" />
     <ClCompile Include="day10.cpp" />
+    <ClCompile Include="day11.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
     <ClCompile Include="day4.cpp" />
@@ -168,11 +169,11 @@
     <ClCompile Include="day7.cpp" />
     <ClCompile Include="day8.cpp" />
     <ClCompile Include="day9.cpp" />
-    <ClCompile Include="intcode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="day1.h" />
     <ClInclude Include="day10.h" />
+    <ClInclude Include="day11.h" />
     <ClInclude Include="day2.h" />
     <ClInclude Include="day3.h" />
     <ClInclude Include="day4.h" />

@@ -30,9 +30,6 @@
     <ClCompile Include="day4.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="intcode.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="day5.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -49,6 +46,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="day10.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="day11.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -87,6 +87,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="day10.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="day11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

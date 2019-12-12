@@ -58,23 +58,30 @@ namespace util
 		return std::find(s.begin(), s.end(), e) != s.end();
 	}
 
-	struct Coord
+	struct Vector
 	{
 		int x;
 		int y;
-		Coord(int x, int y): x(x), y(y)
+		Vector(int x, int y): x(x), y(y)
 		{ }
 	};
 
-	inline bool operator<(const Coord& l, const Coord& r)
+	inline bool operator<(const Vector& l, const Vector& r)
 	{
 		return (l.x < r.x || (l.x == r.x && l.y < r.y));
 	}
 
-	inline bool operator==(const Coord& l, const Coord& r)
+	inline bool operator==(const Vector& l, const Vector& r)
 	{
 		return l.x == r.x && l.y == r.y;
 	}
+
+	inline Vector operator+(const Vector& l, const Vector& r)
+	{
+		return Vector{l.x + r.x, l.y + r.y};
+	}
+
+	typedef Vector Coord;
 
 	// https://stackoverflow.com/a/27697079/242348
 	inline std::vector<std::vector<int>> permuteUnique(std::vector<int> num) {

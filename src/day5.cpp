@@ -9,17 +9,17 @@ using std::string;
 namespace day5
 {
 
-	int64_t runTEST(const vector<int64_t>& program, int input)
+	int64_t runTEST(const vector<int64_t>& program, int64_t input)
 	{
 		Intcode computer(program);
-		computer.getInput().write(input);
+		computer << input;
 		computer.run();
 
-		int64_t code = 0;
-		while (!computer.getOutput().empty())
-			code = computer.getOutput().read().value();
 
-		return code;
+		vector<int64_t> output;
+		computer.getOutputDevice().readAll(output);
+
+		return output[output.size() - 1];
 	}
 
 	pair<int64_t, int64_t> solve(const vector<string>& input)

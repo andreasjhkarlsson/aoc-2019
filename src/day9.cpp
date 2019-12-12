@@ -16,14 +16,16 @@ namespace day9
 		auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
 
 		Intcode computer(program);
-		computer.getInput().write(1);
+		computer << 1;
 		computer.run();
-		auto part1 = computer.getOutput().read().value();
+		int64_t part1;
+		computer >> part1;
 
 		auto computer2 = Intcode(program);
-		computer2.getInput().write(2);
+		computer2 << 2;
 		computer2.run();
-		auto part2 = computer2.getOutput().read().value();
+		int64_t part2;
+		computer >> part2;
 
 		return pair(part1, part2);
 
