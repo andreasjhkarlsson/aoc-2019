@@ -171,17 +171,6 @@
     <ClCompile Include="day9.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="day1.h" />
-    <ClInclude Include="day10.h" />
-    <ClInclude Include="day11.h" />
-    <ClInclude Include="day2.h" />
-    <ClInclude Include="day3.h" />
-    <ClInclude Include="day4.h" />
-    <ClInclude Include="day5.h" />
-    <ClInclude Include="day6.h" />
-    <ClInclude Include="day7.h" />
-    <ClInclude Include="day8.h" />
-    <ClInclude Include="day9.h" />
     <ClInclude Include="days.h" />
     <ClInclude Include="intcode.h" />
     <ClInclude Include="util.h" />

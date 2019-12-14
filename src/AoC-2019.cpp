@@ -4,6 +4,7 @@
 #include <vector>
 #include <utility>
 #include <functional>
+#include <optional>
 #include "util.h"
 #include "days.h"
 
@@ -14,17 +15,16 @@ using std::endl;
 using std::string;
 using std::vector;
 using std::pair;
+using std::optional;
 
-typedef pair<int64_t, int64_t>(*Solver)(const vector<string>&);
+Day days[25];
 
-#define DAY(n) day##n::solve
-
-const Solver solutions[] = {
-	DAY(1),  DAY(2),  DAY(3),
-	DAY(4),  DAY(5),  DAY(6),
-	DAY(7),  DAY(8),  DAY(9),
-	DAY(10), DAY(11)
-};
+optional<pair<int64_t,int64_t>> solveDay(Day& day, const vector<string>& input)
+{
+	if (day.solved)
+		return day.solver(input);
+	return std::nullopt;
+}
 
 int main()
 {
@@ -32,8 +32,14 @@ int main()
 	cout << "*** Advent of Code 2019 ***" << endl;
 	cout << "***************************" << endl;
 
-	std::cout << "Day: ";
+	cout << "Day: ";
 	int day; cin >> day;
+
+	if (day < 1 || day > 25)
+	{
+		cout << "Invalid day" << endl;
+		return 1;
+	}
 
 	cout << "Input: ";
 
@@ -46,17 +52,17 @@ int main()
 		if (line.size() > 0)
 			input.push_back(line);
 	}
-	
-	if (day > 0 && day <= (sizeof solutions / sizeof *solutions))
+
+	if (auto solution = solveDay(days[day - 1], input))
 	{
-		auto result = solutions[day-1](input);
-		cout << "Part 1: " << result.first << endl;
-		cout << "Part 2: " << result.second << endl;
+		cout << "Part 1: " << solution.value().first << endl;
+		cout << "Part 2: " << solution.value().second << endl;
 	}
 	else
 	{
-		std::cout << "Day not solved" << std::endl;
+		cout << "Day not solved" << endl;
 		return 1;
 	}
+
 }
 

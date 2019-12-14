@@ -1,4 +1,4 @@
-#include "day10.h"
+#include "days.h"
 #include "util.h"
 #include "intcode.h"
 #include <map>
@@ -112,36 +112,33 @@ pair<int, int> findMinMax(IT begin, IT end, std::function<int(typename IT::value
 	return { fn(*min), fn(*max) };
 }
 
-namespace day11
+day(11) = solve(const vector<string>& input)
 {
-	pair<int64_t, int64_t> solve(const vector<string>& input)
-	{
-		auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
+	auto program = util::mapVector<string, int64_t>(util::split(input[0], ','));
 
-		Hull hull;
-		paintHull(hull, program);
+	Hull hull;
+	paintHull(hull, program);
 
-		auto part1 = hull.size();
+	auto part1 = hull.size();
 
-		hull.clear();
-		hull[{0, 0}] = White;
-		paintHull(hull, program);
+	hull.clear();
+	hull[{0, 0}] = White;
+	paintHull(hull, program);
 		
-		auto [minX, maxX] = findMinMax(hull.begin(), hull.end(), [](const auto & e) { return e.first.x; });
-		auto [minY, maxY] = findMinMax(hull.begin(), hull.end(), [](const auto & e) { return e.first.y; });
+	auto [minX, maxX] = findMinMax(hull.begin(), hull.end(), [](const auto & e) { return e.first.x; });
+	auto [minY, maxY] = findMinMax(hull.begin(), hull.end(), [](const auto & e) { return e.first.y; });
 
-		for (int y = minY; y <= maxY; y++)
+	for (int y = minY; y <= maxY; y++)
+	{
+		for (int x = minX; x <= maxX; x++)
 		{
-			for (int x = minX; x <= maxX; x++)
-			{
 
-				if (hull[{x, y}] == White)
-					cout << '#';
-				else
-					cout << ' ';
-			} cout << endl;
+			if (hull[{x, y}] == White)
+				cout << '#';
+			else
+				cout << ' ';
 		} cout << endl;
+	} cout << endl;
 
-		return { part1, 0 };
-	}
-}
+	return { part1, 0 };
+};
