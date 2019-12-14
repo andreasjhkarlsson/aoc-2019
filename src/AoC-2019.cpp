@@ -5,17 +5,7 @@
 #include <utility>
 #include <functional>
 #include "util.h"
-#include "day1.h"
-#include "day2.h"
-#include "day3.h"
-#include "day4.h"
-#include "day5.h"
-#include "day6.h"
-#include "day7.h"
-#include "day8.h"
-#include "day9.h"
-#include "day10.h"
-#include "day11.h"
+#include "days.h"
 
 using std::cout;
 using std::cin;
@@ -25,9 +15,19 @@ using std::string;
 using std::vector;
 using std::pair;
 
+typedef pair<int64_t, int64_t>(*Solver)(const vector<string>&);
+
+#define DAY(n) day##n::solve
+
+const Solver solutions[] = {
+	DAY(1),  DAY(2),  DAY(3),
+	DAY(4),  DAY(5),  DAY(6),
+	DAY(7),  DAY(8),  DAY(9),
+	DAY(10), DAY(11)
+};
+
 int main()
 {
-    
 	cout << "***************************" << endl;
 	cout << "*** Advent of Code 2019 ***" << endl;
 	cout << "***************************" << endl;
@@ -46,50 +46,17 @@ int main()
 		if (line.size() > 0)
 			input.push_back(line);
 	}
-	pair<int64_t, int64_t> result;
-
-	switch (day)
+	
+	if (day > 0 && day <= (sizeof solutions / sizeof *solutions))
 	{
-	case 1:
-		result = day1::solve(input);
-		break;
-	case 2:
-		result = day2::solve(input);
-		break;
-	case 3:
-		result = day3::solve(input);
-		break;
-	case 4:
-		result = day4::solve(input);
-		break;
-	case 5:
-		result = day5::solve(input);
-		break;
-	case 6:
-		result = day6::solve(input);
-		break;
-	case 7:
-		result = day7::solve(input);
-		break;
-	case 8:
-		result = day8::solve(input);
-		break;
-	case 9:
-		result = day9::solve(input);
-		break;
-	case 10:
-		result = day10::solve(input);
-		break;
-	case 11:
-		result = day11::solve(input);
-		break;
-	default:
-		cout << "Day not solved." << endl;
+		auto result = solutions[day-1](input);
+		cout << "Part 1: " << result.first << endl;
+		cout << "Part 2: " << result.second << endl;
+	}
+	else
+	{
+		std::cout << "Day not solved" << std::endl;
 		return 1;
 	}
-
-	cout << "Part 1: " << result.first << endl;
-	cout << "Part 2: " << result.second << endl;
-
 }
 

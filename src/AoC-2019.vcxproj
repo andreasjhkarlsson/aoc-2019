@@ -182,6 +182,7 @@
     <ClInclude Include="day7.h" />
     <ClInclude Include="day8.h" />
     <ClInclude Include="day9.h" />
+    <ClInclude Include="days.h" />
     <ClInclude Include="intcode.h" />
     <ClInclude Include="util.h" />
   </ItemGroup>

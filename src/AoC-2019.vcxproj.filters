@@ -92,5 +92,8 @@
     <ClInclude Include="day11.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="days.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
