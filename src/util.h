@@ -127,6 +127,18 @@ namespace util
 			return false;
 		}
 	};
+
+	template <typename T>
+	unsigned count(const T& container, std::function<bool(const typename T::value_type&)> fn)
+	{
+		unsigned sum = 0;
+		for (const auto& element : container)
+		{
+			if (fn(element)) sum++;
+		}
+
+		return sum;
+	}
 }
 
 namespace std

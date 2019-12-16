@@ -6,6 +6,8 @@
 #include <optional>
 #include <thread>
 #include <optional>
+#include <string>
+#include <array>
 #include "util.h"
 
 template <typename T>
@@ -29,6 +31,14 @@ public:
 };
 
 template <typename T>
+class NullIODevice : public IODevice<T>
+{
+	virtual void write(const T& value) override {}
+	virtual void setEOF() override {}
+	virtual std::optional<T> read() override { return std::nullopt; }
+};
+
+template <typename T>
 class InputDevice : public IODevice<T>
 {
 public:
@@ -43,6 +53,32 @@ public:
 	virtual std::optional<T> read() override
 	{
 		return std::nullopt;
+	}
+};
+
+
+
+
+
+template <typename T, int SIZE>
+class BlockedOutputDevice : public OutputDevice<T>
+{
+protected:
+	typedef std::array<T, SIZE> Block;
+
+	virtual void write(const Block&) = 0;
+private:
+	Block block;
+	int pushed = 0;
+public:
+	virtual void write(const T& value) final
+	{
+		block[pushed] = value;
+		if (++pushed == SIZE)
+		{
+			write(block);
+			pushed = 0;
+		}
 	}
 };
 
@@ -115,6 +151,9 @@ struct IO
 	OUT output;
 };
 
+template <typename T>
+struct CustomIO : IO<IODevice<T>&, IODevice<T>&> {};
+
 typedef IO<BufferedIODevice<int64_t>, BufferedIODevice<int64_t>> BufferedIO;
 
 template <typename T>
@@ -184,16 +223,14 @@ private:
 		if (memory.size() != memorySize)
 			loadParameters(address, count, params);
 	}
-
 public:
+
 	Intcode(const std::vector<int64_t>& program):
 		memory(program),
 		ip(0),
 		rb(0),
 		halted(false)
-	{
-
-	}
+	{ }
 
 	Intcode(const std::vector<int64_t>& program, T&& io) :
 		memory(program),
@@ -201,9 +238,17 @@ public:
 		rb(0),
 		halted(false),
 		io(io)
-	{
+	{ }
 
-	}
+
+	Intcode(const std::string& program):
+		Intcode(util::mapVector<std::string, int64_t>(util::split(program, ',')))
+	{ }
+	
+	Intcode(const std::string& program, T&& io):
+		Intcode(util::mapVector<std::string, int64_t>(util::split(program, ',')), io)
+	{ }
+	
 
 	~Intcode()
 	{
