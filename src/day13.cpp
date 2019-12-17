@@ -140,17 +140,13 @@ day(13) = solve(const auto & input)
 		part1 = game.numBlocks();
 	}
 
-
 	{
 		Game game(input[0], true);
 
 		game.run();
 
 		part2 = game.getScore();
-
 	}
-
-
 
 	return { part1,part2 };
 	
