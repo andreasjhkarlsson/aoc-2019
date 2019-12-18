@@ -10,12 +10,18 @@
 #include <array>
 #include "util.h"
 
+
+struct _EOF {};
+
+const _EOF eof;
+
 template <typename T>
 class IODevice
 {
 public:
+public:
 	virtual void write(const T& value) = 0;
-	virtual void setEOF() = 0;
+	virtual void write(_EOF) = 0;
 	virtual std::optional<T> read() = 0;
 	void readAll(std::vector<T> data)
 	{
@@ -34,7 +40,7 @@ template <typename T>
 class NullIODevice : public IODevice<T>
 {
 	virtual void write(const T& value) override {}
-	virtual void setEOF() override {}
+	virtual void write(_EOF) override {}
 	virtual std::optional<T> read() override { return std::nullopt; }
 };
 
@@ -43,7 +49,7 @@ class InputDevice : public IODevice<T>
 {
 public:
 	virtual void write(const T& value) override {}
-	virtual void setEOF() override {}
+	virtual void write(_EOF) override {}
 };
 
 template <typename T>
@@ -55,9 +61,6 @@ public:
 		return std::nullopt;
 	}
 };
-
-
-
 
 
 template <typename T, int SIZE>
@@ -107,7 +110,7 @@ public:
 		semaphore.notify();
 	}
 
-	void setEOF()
+	void write(_EOF) override
 	{
 		ended = true;
 		semaphore.notify();
@@ -250,7 +253,7 @@ public:
 	{ }
 	
 
-	~Intcode()
+	virtual ~Intcode()
 	{
 		wait();
 	}
@@ -349,7 +352,7 @@ public:
 				break;
 			}
 			case 99: halt:
-			io.output.setEOF();
+			io.output.write(eof);
 			return;
 			default: panic:
 			std::cerr << "Panic! Intcode computer encountered an unrecoverable state." << std::endl;

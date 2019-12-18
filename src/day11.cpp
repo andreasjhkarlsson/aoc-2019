@@ -78,7 +78,7 @@ private:
 			mode = (Mode)((mode + 1) % 2);
 		}
 
-		virtual void setEOF() override {}
+		virtual void write(_EOF) override {}
 	};
 
 public:

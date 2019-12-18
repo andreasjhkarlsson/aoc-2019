@@ -57,7 +57,7 @@ private:
 
 		using BlockedOutputDevice::write;
 
-		virtual void setEOF() override
+		virtual void write(_EOF) override
 		{
 			// Computer be done
 		}
