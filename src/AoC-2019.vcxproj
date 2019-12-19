@@ -109,6 +109,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -149,6 +150,7 @@
       <PrecompiledHeaderFile>
       </PrecompiledHeaderFile>
       <LanguageStandard>stdcpplatest</LanguageStandard>
+      <AdditionalOptions>/await %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -167,6 +169,7 @@
     <ClCompile Include="day13.cpp" />
     <ClCompile Include="day14.cpp" />
     <ClCompile Include="day15.cpp" />
+    <ClCompile Include="day16.cpp" />
     <ClCompile Include="day2.cpp" />
     <ClCompile Include="day3.cpp" />
     <ClCompile Include="day4.cpp" />
